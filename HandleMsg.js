@@ -1416,18 +1416,28 @@ module.exports = HandleMsg = async (aruga, message) => {
                 }
             }
             break
-        case 'bc': //untuk broadcast atau promosi
-            if (!isOwnerBot) return aruga.reply(from, 'Perintah ini hanya untuk Owner bot!', id)
+	case 'bc': 
+            if (!isOwnerBot) return aruga.reply(from, 'heh, siapa ini bukan owner Bot main suruh', id)
             if (args.length == 0) return aruga.reply(from, `Untuk broadcast ke semua chat ketik:\n${prefix}bc [isi chat]`)
             let msg = body.slice(4)
             const chatz = await aruga.getAllChatIds()
-            for (let idk of chatz) {
-                var cvk = await aruga.getChatById(idk)
-                if (!cvk.isReadOnly) aruga.sendText(idk, `〘 *A R U G A  B C* 〙\n\n${msg}`)
-                if (cvk.isReadOnly) aruga.sendText(idk, `〘 *A R U G A  B C* 〙\n\n${msg}`)
-            }
-            aruga.reply(from, 'Broadcast Success!', id)
-            break
+            if(quotedMsg && quotedMsg.type == 'image'){                             
+		    const mediaData = await decryptMedia(quotedMsg)                                                                                 
+		    const imageBase64 = `data:${quotedMsg.mimetype};base64,${mediaData.toString('base64')}`
+                    for (let idk of chatz) {
+                        var cvk = await aruga.getChatById(idk)
+                        if (!cvk.isReadOnly) aruga.sendImage(idk, imageBase64, 'gambar.jpeg', `〘 *A R U G A  B C* 〙\n\n${msg}`)                           
+			    if (cvk.isReadOnly) aruga.sendImage(idk, imageBase64, 'gambar.jpeg', `〘 *A R U G A  B C* 〙\n\n${msg}`)
+                }                                                              
+		    aruga.reply(from, 'Broadcast Success!', id)
+            }else{
+                    for(let idk of chatz){                                             
+			    var cvk = await aruga.getChatById(idk)                          
+			    if(!cvk.isReadOnly) aruga.sendText(idk, `〘 *A R U G A  B C* 〙\n\n${msg}`)
+                    }
+                            aruga.reply('Broadcast Success!')                   
+	    }                                                           
+	    break
         case 'leaveall': //mengeluarkan bot dari semua group serta menghapus chatnya
             if (!isOwnerBot) return aruga.reply(from, 'Perintah ini hanya untuk Owner bot', id)
             const allChatz = await aruga.getAllChatIds()
